@@ -2,8 +2,10 @@ if(process.env.NODE_ENV != "production"){
  require('dotenv').config()
 }
 
-const dns = require("dns");
-try { dns.setServers(["8.8.8.8", "1.1.1.1"]); } catch (e) {}
+if (process.platform === "win32") {
+  const dns = require("dns");
+  try { dns.setServers(["8.8.8.8", "1.1.1.1"]); } catch (e) {}
+}
 
 const express = require("express");
 const app = express();
@@ -28,9 +30,9 @@ const userRouter = require("./routes/user.js");
 const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
 main().then(()=>{
-    console.log("connected to DB");
+    console.log("Connected to database:", dbUrl.includes("mongodb+srv") ? "MongoDB Atlas" : "Local MongoDB");
 }).catch((err)=>{
-    console.log(err);
+    console.error("DATABASE CONNECTION ERROR:", err);
 });
 async function main(){
     await mongoose.connect(dbUrl);
