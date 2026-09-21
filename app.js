@@ -10,6 +10,8 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require ("express-session");
+const connectMongo = require("connect-mongo");
+const MongoStore = connectMongo.MongoStore || connectMongo;
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -20,7 +22,7 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-const MONGO_URL ="mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
 main().then(()=>{
     console.log("connected to DB");
@@ -28,7 +30,7 @@ main().then(()=>{
     console.log(err);
 });
 async function main(){
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(dbUrl);
 }
 
 
@@ -40,7 +42,20 @@ app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    crypto: {
+        secret: process.env.SESSION_SECRET || "dev-secret-change-me",
+    },
+    touchAfter: 24 * 3600,
+});
+
+store.on("error", (err) => {
+    console.log("ERROR in MONGO SESSION STORE", err);
+});
+
 const sessionOptions = {
+    store,
     secret: process.env.SESSION_SECRET || "dev-secret-change-me",
     resave: false,
    saveUninitialized: false,
@@ -51,9 +66,9 @@ const sessionOptions = {
     },
 };
 
-// app.get("/",(req,res)=>{
-//     res.send("working");
-// });
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
 
 
 
@@ -116,6 +131,7 @@ app.use((err, req, res, next) => {
 
 
 
-app.listen(8080,()=>{
-    console.log("server is listening to port 8080");
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+    console.log(`server is listening to port ${port}`);
 });

@@ -61,35 +61,34 @@
 <hr />
 <% } %>
 
-<% if(listing.reviews.length >0){ %>
+<% if(listing.reviews.length > 0){ %>
 <div class="row">
-<p><b>All Reviews</b></p>
- <% for (let review of listing.reviews){ %>
-   <div class="card col-5 ms-3 mb-3"> 
-    <div class="card-body">
-    <h5 class="card-title">@<%= review.author?.username || "Deleted user" %> </h5>
-    <p class="starability-result card-text" data-rating="<%= review.rating %>"></p>
-    <p class="card-text"><%= review.comment %></p>
+  <p><b>All Reviews</b></p>
+  <% for (let review of listing.reviews){ %>
+    <div class="col-12 col-md-6 mb-3">
+      <div class="card h-100 review-card"> 
+        <div class="card-body">
+          <h5 class="card-title">@<%= review.author?.username || "Deleted user" %></h5>
+          <p class="starability-result card-text" data-rating="<%= review.rating %>"></p>
+          <p class="card-text"><%= review.comment %></p>
 
-
-    <form class="mb-3 mt-3" method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
-        <button class="btn btn-sm btn-dark"> Delete</button>
-    </form>
-   </div>
+          <form class="mb-2 mt-3" method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+              <button class="btn btn-sm btn-dark">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } %>
 </div>
 <% } %>
-</div>
- <%}%>
 
 </div>
-      <div class="col-lg-8 offset-lg-2">
-      <h3>Where you'll be</h3>
-
+      <div class="col-lg-8 offset-lg-2 mb-3">
+        <h3>Where you'll be</h3>
+        <div id="map"></div>
       </div>
     </div>
 
-
-<div id="map"></div>
     <script>
       const map = new maplibregl.Map({
         container: "map",
@@ -98,5 +97,4 @@
         zoom: 3,
       });
     </script>
-</div>
 <br>
