@@ -1,13 +1,17 @@
+const dns = require("dns");
+try { dns.setServers(["8.8.8.8", "1.1.1.1"]); } catch (e) {}
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
 const User = require("../models/user.js");
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
 async function main() {
-  await mongoose.connect(MONGO_URL);
-  console.log("Connected to MongoDB!");
+  await mongoose.connect(dbUrl);
+  console.log("Connected to database:", dbUrl.includes("mongodb+srv") ? "MongoDB Atlas (Cloud)" : "Local DB");
 }
 
 const initDB = async () => {
